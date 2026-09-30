@@ -1,0 +1,673 @@
+# Copyright (C) 2026 FacturaMX
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: FacturaMX for WooCommerce 0.1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/facturamx-for-woocommerce\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-09-30T04:38:31+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: facturamx-for-woocommerce\n"
+
+#. Plugin Name of the plugin
+#: facturamx-for-woocommerce.php
+msgid "FacturaMX for WooCommerce"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: facturamx-for-woocommerce.php
+msgid "https://facturamx.top/plugin-woocommerce"
+msgstr ""
+
+#. Description of the plugin
+#: facturamx-for-woocommerce.php
+msgid "Autofacturación CFDI 4.0 para WooCommerce a través de la API pública de FacturaMX."
+msgstr ""
+
+#. Author of the plugin
+#: facturamx-for-woocommerce.php
+#: includes/class-facturamx-product-fields.php:120
+#: includes/class-facturamx-settings-page.php:39
+#: includes/class-facturamx-settings-page.php:40
+msgid "FacturaMX"
+msgstr ""
+
+#. Author URI of the plugin
+#: facturamx-for-woocommerce.php
+msgid "https://facturamx.top"
+msgstr ""
+
+#: facturamx-for-woocommerce.php:64
+msgid "FacturaMX para WooCommerce necesita WooCommerce para funcionar. Activa WooCommerce y vuelve a intentarlo."
+msgstr ""
+
+#: facturamx-for-woocommerce.php:68
+msgid "Falta WooCommerce"
+msgstr ""
+
+#: facturamx-for-woocommerce.php:80
+msgid "FacturaMX para WooCommerce está activo pero WooCommerce no. El plugin no hará nada hasta que actives WooCommerce."
+msgstr ""
+
+#. translators: %s: mensaje de error de transporte.
+#: includes/class-facturamx-client.php:168
+#, php-format
+msgid "No se pudo contactar con FacturaMX: %s. La factura PODRÍA haberse emitido de todos modos: vuelve a intentarlo, no se duplicará."
+msgstr ""
+
+#: includes/class-facturamx-client.php:214
+#: includes/class-facturamx-client.php:309
+msgid "Falta la URL de la API en los ajustes del plugin."
+msgstr ""
+
+#: includes/class-facturamx-client.php:227
+msgid "No se pudieron obtener los catálogos del SAT. Inténtalo de nuevo en unos minutos."
+msgstr ""
+
+#: includes/class-facturamx-client.php:240
+msgid "La respuesta de catálogos no tiene el formato esperado."
+msgstr ""
+
+#: includes/class-facturamx-client.php:448
+msgid "FacturaMX rechazó el token. Revísalo en los ajustes del plugin."
+msgstr ""
+
+#: includes/class-facturamx-client.php:452
+msgid "La organización no puede facturar ahora mismo. Revisa timbres, CSD y API key en FacturaMX."
+msgstr ""
+
+#. translators: %s: mensaje devuelto por la API.
+#: includes/class-facturamx-client.php:455
+#, php-format
+msgid "No se pudo facturar: %s"
+msgstr ""
+
+#: includes/class-facturamx-client.php:461
+msgid "Los datos de la factura no son válidos."
+msgstr ""
+
+#. translators: %s: mensaje devuelto por la API.
+#: includes/class-facturamx-client.php:464
+#, php-format
+msgid "Los datos de la factura no son válidos: %s"
+msgstr ""
+
+#: includes/class-facturamx-client.php:469
+msgid "FacturaMX está recibiendo demasiadas peticiones. Espera un minuto y vuelve a intentarlo."
+msgstr ""
+
+#: includes/class-facturamx-client.php:472
+msgid "El servicio de timbrado no responde. Vuelve a intentarlo en unos minutos."
+msgstr ""
+
+#: includes/class-facturamx-client.php:476
+msgid "FacturaMX devolvió una respuesta inesperada."
+msgstr ""
+
+#. translators: %d: código HTTP devuelto por la API.
+#: includes/class-facturamx-client.php:479
+#, php-format
+msgid "FacturaMX devolvió una respuesta inesperada (%d)."
+msgstr ""
+
+#: includes/class-facturamx-download.php:295
+msgid "No encontramos ese documento."
+msgstr ""
+
+#: includes/class-facturamx-download.php:296
+msgid "No encontrado"
+msgstr ""
+
+#: includes/class-facturamx-eligibility.php:78
+msgid "No encontramos un pedido con esos datos."
+msgstr ""
+
+#: includes/class-facturamx-eligibility.php:79
+msgid "Solo se pueden facturar pedidos pagados."
+msgstr ""
+
+#: includes/class-facturamx-eligibility.php:80
+msgid "Este pedido necesita facturarse a mano. Escríbenos y te ayudamos."
+msgstr ""
+
+#: includes/class-facturamx-eligibility.php:81
+msgid "El plazo para facturar este pedido ha vencido. Escríbenos y te ayudamos."
+msgstr ""
+
+#: includes/class-facturamx-invoice.php:71
+msgid "El servidor respondió sin UUID: no hay factura que registrar."
+msgstr ""
+
+#: includes/class-facturamx-invoice.php:127
+msgid "Factura recuperada: ya existía en FacturaMX para este pedido y no se ha vuelto a timbrar."
+msgstr ""
+
+#: includes/class-facturamx-invoice.php:129
+msgid "Factura emitida en FacturaMX."
+msgstr ""
+
+#. translators: %s: serie y folio, por ejemplo WEB-1.
+#: includes/class-facturamx-invoice.php:135
+#, php-format
+msgid "Serie y folio: %s."
+msgstr ""
+
+#. translators: %s: UUID fiscal del CFDI.
+#: includes/class-facturamx-invoice.php:142
+#, php-format
+msgid "UUID: %s"
+msgstr ""
+
+#. translators: 1: moneda del pedido, 2: moneda exigida.
+#: includes/class-facturamx-order-mapper.php:113
+#, php-format
+msgid "Este pedido está en %1$s y el CFDI solo se puede emitir en %2$s. Este pedido se factura a mano."
+msgstr ""
+
+#: includes/class-facturamx-order-mapper.php:114
+msgid "una moneda sin declarar"
+msgstr ""
+
+#: includes/class-facturamx-order-mapper.php:136
+#: includes/class-facturamx-order-metabox.php:547
+msgid "No se encontró el pedido que se quiere facturar."
+msgstr ""
+
+#. translators: %s: importe reembolsado.
+#: includes/class-facturamx-order-mapper.php:157
+#, php-format
+msgid "Este pedido tiene un reembolso de %s MXN. No se puede facturar automáticamente."
+msgstr ""
+
+#: includes/class-facturamx-order-mapper.php:281
+msgid "El pedido no tiene ninguna línea facturable."
+msgstr ""
+
+#. translators: %s: nombre de la línea del pedido.
+#: includes/class-facturamx-order-mapper.php:302
+#, php-format
+msgid "La línea \"%s\" tiene un importe negativo. El CFDI no admite importes negativos."
+msgstr ""
+
+#. translators: %s: nombre de la línea del pedido.
+#: includes/class-facturamx-order-mapper.php:313
+#, php-format
+msgid "La línea \"%s\" no tiene una cantidad válida."
+msgstr ""
+
+#. translators: 1: nombre de la línea, 2: mensaje del error de tasa.
+#: includes/class-facturamx-order-mapper.php:327
+#, php-format
+msgid "La línea \"%1$s\" tiene un problema de impuestos: %2$s"
+msgstr ""
+
+#. translators: 1: total calculado, 2: total del pedido, 3: diferencia.
+#: includes/class-facturamx-order-mapper.php:368
+#, php-format
+msgid "El total calculado (%1$s) no coincide con el del pedido (%2$s). Diferencia: %3$s MXN."
+msgstr ""
+
+#: includes/class-facturamx-order-mapper.php:545
+msgid "hay impuesto sin base imponible sobre la que calcularlo."
+msgstr ""
+
+#. translators: %s: porcentaje de impuesto calculado.
+#: includes/class-facturamx-order-mapper.php:561
+#, php-format
+msgid "la tasa de impuesto es del %s %% y no corresponde a ninguna tasa del SAT."
+msgstr ""
+
+#: includes/class-facturamx-order-metabox.php:102
+msgid "Facturación (FacturaMX)"
+msgstr ""
+
+#. translators: 1: número de conceptos, 2: total del CFDI.
+#: includes/class-facturamx-order-metabox.php:147
+#, php-format
+msgid "El CFDI cuadra con el pedido: %1$d conceptos, %2$s MXN."
+msgstr ""
+
+#: includes/class-facturamx-order-metabox.php:170
+msgid "No se pudo leer este pedido."
+msgstr ""
+
+#: includes/class-facturamx-order-metabox.php:184
+msgid "Falta configurar la URL de la API y el token para poder facturar."
+msgstr ""
+
+#: includes/class-facturamx-order-metabox.php:186
+msgid "Ir a los ajustes de FacturaMX"
+msgstr ""
+
+#: includes/class-facturamx-order-metabox.php:218
+msgid "Este pedido ya está facturado."
+msgstr ""
+
+#: includes/class-facturamx-order-metabox.php:221
+msgid "Serie y folio:"
+msgstr ""
+
+#: includes/class-facturamx-order-metabox.php:224
+msgid "UUID:"
+msgstr ""
+
+#: includes/class-facturamx-order-metabox.php:227
+msgid "Timbrada el:"
+msgstr ""
+
+#: includes/class-facturamx-order-metabox.php:237
+#: includes/class-facturamx-portal.php:822
+msgid "Descargar PDF"
+msgstr ""
+
+#: includes/class-facturamx-order-metabox.php:238
+#: includes/class-facturamx-portal.php:825
+msgid "Descargar XML"
+msgstr ""
+
+#: includes/class-facturamx-order-metabox.php:264
+#: includes/class-facturamx-portal.php:745
+msgid "Razón social"
+msgstr ""
+
+#: includes/class-facturamx-order-metabox.php:266
+msgid "Tal y como aparece en la Constancia de Situación Fiscal."
+msgstr ""
+
+#: includes/class-facturamx-order-metabox.php:269
+#: includes/class-facturamx-portal.php:750
+msgid "RFC"
+msgstr ""
+
+#: includes/class-facturamx-order-metabox.php:273
+#: includes/class-facturamx-portal.php:754
+msgid "Código postal fiscal"
+msgstr ""
+
+#: includes/class-facturamx-order-metabox.php:277
+msgid "Correo (opcional)"
+msgstr ""
+
+#: includes/class-facturamx-order-metabox.php:281
+#: includes/class-facturamx-portal.php:762
+msgid "Régimen fiscal"
+msgstr ""
+
+#: includes/class-facturamx-order-metabox.php:285
+#: includes/class-facturamx-portal.php:766
+msgid "Uso del CFDI"
+msgstr ""
+
+#: includes/class-facturamx-order-metabox.php:289
+#: includes/class-facturamx-portal.php:770
+#: includes/class-facturamx-settings.php:92
+msgid "Forma de pago"
+msgstr ""
+
+#: includes/class-facturamx-order-metabox.php:294
+msgid "Previsualizar"
+msgstr ""
+
+#: includes/class-facturamx-order-metabox.php:295
+msgid "Timbrar"
+msgstr ""
+
+#: includes/class-facturamx-order-metabox.php:298
+msgid "Previsualizar no emite nada ni gasta timbres. Timbrar sí, y no se puede deshacer."
+msgstr ""
+
+#: includes/class-facturamx-order-metabox.php:336
+#: includes/class-facturamx-settings-page.php:130
+msgid "Comprobando…"
+msgstr ""
+
+#: includes/class-facturamx-order-metabox.php:350
+msgid "No se pudo completar la previsualización."
+msgstr ""
+
+#: includes/class-facturamx-order-metabox.php:357
+msgid "Se va a emitir una factura real. Esta acción gasta un timbre y no se puede deshacer. ¿Continuar?"
+msgstr ""
+
+#: includes/class-facturamx-order-metabox.php:366
+msgid "Timbrando… no cierres esta pantalla."
+msgstr ""
+
+#: includes/class-facturamx-order-metabox.php:380
+msgid "No se pudo completar el timbrado. Recarga la pantalla antes de reintentar."
+msgstr ""
+
+#: includes/class-facturamx-order-metabox.php:400
+msgid "— Elegir —"
+msgstr ""
+
+#: includes/class-facturamx-order-metabox.php:475
+msgid "Este pedido ya tiene factura. Recarga la pantalla para verla."
+msgstr ""
+
+#: includes/class-facturamx-order-metabox.php:537
+msgid "No tienes permisos para facturar pedidos."
+msgstr ""
+
+#: includes/class-facturamx-portal.php:191
+msgid "La facturación no está disponible ahora mismo. Escríbenos y te ayudamos."
+msgstr ""
+
+#: includes/class-facturamx-portal.php:242
+msgid "Este pedido ya tiene factura. Puedes descargarla aquí."
+msgstr ""
+
+#: includes/class-facturamx-portal.php:304
+msgid "Este pedido ya tiene factura. Vuelve a buscarlo para descargarla."
+msgstr ""
+
+#. translators: %s: motivos por los que el plugin no puede timbrar todavía.
+#: includes/class-facturamx-portal.php:352
+#, php-format
+msgid "Un cliente intentó facturar este pedido pero la facturación no está lista: %s"
+msgstr ""
+
+#: includes/class-facturamx-portal.php:360
+msgid "La tienda aún no termina de configurar la facturación en línea. Por favor contáctala para que te envíe tu factura."
+msgstr ""
+
+#: includes/class-facturamx-portal.php:382
+msgid "Facturada por el cliente desde el portal de autofacturación."
+msgstr ""
+
+#: includes/class-facturamx-portal.php:694
+msgid "Demasiados intentos. Espera unos minutos y vuelve a probar."
+msgstr ""
+
+#: includes/class-facturamx-portal.php:732
+msgid "Número de pedido"
+msgstr ""
+
+#: includes/class-facturamx-portal.php:736
+msgid "Total pagado"
+msgstr ""
+
+#: includes/class-facturamx-portal.php:739
+msgid "Buscar mi pedido"
+msgstr ""
+
+#: includes/class-facturamx-portal.php:747
+msgid "Tal y como aparece en tu Constancia de Situación Fiscal."
+msgstr ""
+
+#: includes/class-facturamx-portal.php:758
+msgid "Correo para recibir la factura"
+msgstr ""
+
+#: includes/class-facturamx-portal.php:773
+msgid "Generar factura"
+msgstr ""
+
+#: includes/class-facturamx-portal.php:774
+msgid "La factura se emite con estos datos y no se puede modificar después."
+msgstr ""
+
+#: includes/class-facturamx-portal.php:838
+msgid "No se pudo completar la operación. Vuelve a intentarlo."
+msgstr ""
+
+#: includes/class-facturamx-portal.php:843
+msgid "Buscando…"
+msgstr ""
+
+#: includes/class-facturamx-portal.php:856
+msgid "Pedido"
+msgstr ""
+
+#: includes/class-facturamx-portal.php:886
+msgid "Generando tu factura… no cierres esta página."
+msgstr ""
+
+#: includes/class-facturamx-product-fields.php:49
+#: includes/class-facturamx-settings.php:60
+msgid "Clave de producto del SAT"
+msgstr ""
+
+#: includes/class-facturamx-product-fields.php:52
+msgid "ClaveProdServ de 8 dígitos. Vacío = usa la clave global de los ajustes."
+msgstr ""
+
+#: includes/class-facturamx-product-fields.php:55
+#: includes/class-facturamx-settings.php:68
+msgid "Clave de unidad del SAT"
+msgstr ""
+
+#: includes/class-facturamx-product-fields.php:58
+msgid "ClaveUnidad. H87 = Pieza, KGM = Kilogramo. Vacío = usa la global."
+msgstr ""
+
+#: includes/class-facturamx-product-fields.php:61
+#: includes/class-facturamx-settings.php:76
+msgid "Nombre de la unidad"
+msgstr ""
+
+#: includes/class-facturamx-product-fields.php:64
+msgid "Texto que aparece en la columna Unidad del CFDI. Vacío = usa el global."
+msgstr ""
+
+#: includes/class-facturamx-product-fields.php:67
+msgid "Tasa de IVA"
+msgstr ""
+
+#: includes/class-facturamx-product-fields.php:70
+msgid "Escribe 0 SOLO si el producto está legalmente exento (alimentos, medicinas). Vacío = usa la tasa global. Si WooCommerce ya cobró impuesto en el pedido, manda lo que cobró."
+msgstr ""
+
+#: includes/class-facturamx-product-fields.php:91
+msgid "Campo desconocido."
+msgstr ""
+
+#: includes/class-facturamx-product-fields.php:198
+msgid "FacturaMX no guardó estos campos del producto:"
+msgstr ""
+
+#: includes/class-facturamx-readiness.php:53
+msgid "La conexión con FacturaMX no se ha comprobado con el token actual. Ve a WooCommerce → FacturaMX y pulsa «Probar conexión»."
+msgstr ""
+
+#. translators: %s: lista de productos separados por comas.
+#: includes/class-facturamx-readiness.php:67
+#, php-format
+msgid "Estos productos no tienen clave del SAT propia y saldrían con la comodín 01010101: %s. Asígnasela en la pestaña «FacturaMX» de cada producto."
+msgstr ""
+
+#: includes/class-facturamx-receptor.php:115
+msgid "No se pudieron cargar los catálogos del SAT. Comprueba la conexión antes de facturar."
+msgstr ""
+
+#: includes/class-facturamx-settings-page.php:52
+msgid "No tienes permisos para ver esta página."
+msgstr ""
+
+#: includes/class-facturamx-settings-page.php:58
+msgid "FacturaMX · Autofacturación"
+msgstr ""
+
+#: includes/class-facturamx-settings-page.php:64
+msgid "Faltan la URL de la API o el token. Hasta que los rellenes, el plugin no emitirá ninguna factura."
+msgstr ""
+
+#: includes/class-facturamx-settings-page.php:112
+msgid "Comprobar la conexión"
+msgstr ""
+
+#: includes/class-facturamx-settings-page.php:114
+msgid "Comprueba la URL y el token sin emitir ninguna factura ni gastar timbres."
+msgstr ""
+
+#: includes/class-facturamx-settings-page.php:118
+msgid "Probar conexión"
+msgstr ""
+
+#: includes/class-facturamx-settings-page.php:143
+msgid "No se pudo completar la comprobación."
+msgstr ""
+
+#: includes/class-facturamx-settings-page.php:164
+msgid "Antes del primer timbre"
+msgstr ""
+
+#: includes/class-facturamx-settings-page.php:169
+msgid "✓ Conexión comprobada con el token actual."
+msgstr ""
+
+#: includes/class-facturamx-settings-page.php:170
+msgid "✗ Falta comprobar la conexión con el token actual: pulsa «Probar conexión» (abajo) después de guardar."
+msgstr ""
+
+#: includes/class-facturamx-settings-page.php:176
+msgid "✓ Ningún producto publicado saldría con la clave comodín 01010101."
+msgstr ""
+
+#. translators: %d: número de productos sin clave del SAT propia.
+#: includes/class-facturamx-settings-page.php:181
+#, php-format
+msgid "✗ %d producto publicado no tiene clave del SAT propia y saldría con la comodín 01010101. Asígnasela en su pestaña «FacturaMX»:"
+msgid_plural "✗ %d productos publicados no tienen clave del SAT propia y saldrían con la comodín 01010101. Asígnasela en su pestaña «FacturaMX»:"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-facturamx-settings-page.php:202
+msgid "Mientras haya algo en rojo, el plugin no emite facturas: ni desde el pedido ni desde el portal de autofacturación. Así no se gasta ningún timbre en un CFDI con datos incompletos."
+msgstr ""
+
+#: includes/class-facturamx-settings-page.php:225
+msgid "No tienes permisos para hacer esta comprobación."
+msgstr ""
+
+#: includes/class-facturamx-settings-page.php:235
+msgid "Rellena la URL de la API y el token antes de probar la conexión."
+msgstr ""
+
+#. translators: %s: mensaje de error de transporte
+#: includes/class-facturamx-settings-page.php:267
+#: includes/class-facturamx-settings-page.php:285
+#, php-format
+msgid "No se pudo contactar con el servidor: %s."
+msgstr ""
+
+#: includes/class-facturamx-settings-page.php:276
+msgid "La URL responde, pero no parece una API de FacturaMX."
+msgstr ""
+
+#: includes/class-facturamx-settings-page.php:294
+msgid "El servidor rechazó el token (401). Revísalo en FacturaMX."
+msgstr ""
+
+#. translators: 1: número de regímenes fiscales, 2: número de usos de CFDI
+#: includes/class-facturamx-settings-page.php:306
+#, php-format
+msgid "Conexión correcta · %1$d regímenes fiscales, %2$d usos de CFDI"
+msgstr ""
+
+#. translators: %s: código HTTP inesperado
+#: includes/class-facturamx-settings-page.php:317
+#, php-format
+msgid "El servidor respondió de forma inesperada al comprobar el token (%s)."
+msgstr ""
+
+#: includes/class-facturamx-settings.php:44
+msgid "URL de la API"
+msgstr ""
+
+#: includes/class-facturamx-settings.php:49
+msgid "Sin barra final. Ej: https://facturamx.top"
+msgstr ""
+
+#: includes/class-facturamx-settings.php:52
+msgid "Token de la API"
+msgstr ""
+
+#: includes/class-facturamx-settings.php:57
+msgid "Se genera en FacturaMX → Empresas → tu empresa → «API para facturación externa». Empieza por fmx_live_."
+msgstr ""
+
+#: includes/class-facturamx-settings.php:65
+msgid "ClaveProdServ que se usa cuando el producto no tiene una propia. 01010101 = \"No existe en el catálogo\"."
+msgstr ""
+
+#: includes/class-facturamx-settings.php:73
+msgid "ClaveUnidad. H87 = Pieza, E48 = Unidad de servicio."
+msgstr ""
+
+#: includes/class-facturamx-settings.php:81
+msgid "Texto que aparece en la columna Unidad del CFDI."
+msgstr ""
+
+#: includes/class-facturamx-settings.php:84
+msgid "Tasa de IVA por defecto"
+msgstr ""
+
+#: includes/class-facturamx-settings.php:89
+msgid "Se aplica a las líneas en las que WooCommerce no calculó impuesto, extrayéndola del precio (que por ley ya lo incluye). 16 % general, 8 % franja fronteriza. Lo exento se marca producto a producto."
+msgstr ""
+
+#: includes/class-facturamx-settings.php:97
+msgid "c_FormaPago. 03 = Transferencia, 04 = Tarjeta de crédito, 28 = Tarjeta de débito."
+msgstr ""
+
+#: includes/class-facturamx-settings.php:100
+msgid "Serie"
+msgstr ""
+
+#: includes/class-facturamx-settings.php:105
+msgid "Déjalo vacío para usar la serie por defecto de la organización."
+msgstr ""
+
+#: includes/class-facturamx-settings.php:108
+msgid "Ventana de facturación (días)"
+msgstr ""
+
+#: includes/class-facturamx-settings.php:113
+msgid "Días desde la compra durante los que el cliente puede autofacturar. El SAT exige que el CFDI se emita dentro del mismo mes."
+msgstr ""
+
+#: includes/class-facturamx-validator.php:39
+msgid "La URL de la API es obligatoria."
+msgstr ""
+
+#: includes/class-facturamx-validator.php:51
+msgid "La URL de la API no tiene un formato válido."
+msgstr ""
+
+#: includes/class-facturamx-validator.php:58
+msgid "La URL de la API debe empezar por http:// o https://."
+msgstr ""
+
+#: includes/class-facturamx-validator.php:77
+msgid "La clave de producto del SAT debe tener exactamente 8 dígitos (ej. 01010101)."
+msgstr ""
+
+#: includes/class-facturamx-validator.php:96
+msgid "La clave de unidad del SAT debe tener entre 1 y 3 caracteres alfanuméricos (ej. H87)."
+msgstr ""
+
+#: includes/class-facturamx-validator.php:118
+msgid "La forma de pago debe ser un código de 2 dígitos del catálogo del SAT (ej. 03)."
+msgstr ""
+
+#: includes/class-facturamx-validator.php:138
+msgid "El token no tiene el formato esperado (fmx_live_ seguido de 64 caracteres)."
+msgstr ""
+
+#: includes/class-facturamx-validator.php:162
+msgid "La serie solo puede contener letras y números (ej. WEB)."
+msgstr ""
+
+#: includes/class-facturamx-validator.php:194
+msgid "La tasa de IVA debe ser un número (ej. 16, 16% o 0.16)."
+msgstr ""
+
+#: includes/class-facturamx-validator.php:213
+msgid "Esa tasa no está en el catálogo del SAT. Las admitidas son 0 %, 8 % y 16 %."
+msgstr ""
