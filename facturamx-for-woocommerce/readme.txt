@@ -26,7 +26,11 @@ store owner does nothing.
   page. No customer account is required: the order number plus the exact amount
   paid is what proves the order is theirs.
 * **An admin invoicing box.** Every order gets a FacturaMX metabox so you can
-  issue the CFDI yourself when a customer asks by phone or email.
+  issue the CFDI yourself when a customer asks by phone or email, or send the
+  order to FacturaMX as a draft quotation and turn it into an invoice from the
+  FacturaMX panel.
+* **The invoice reaches the customer by email.** When the customer leaves an
+  email address, FacturaMX sends the CFDI with its PDF and XML attached.
 * **Tax data is validated before anything is issued.** RFC, postal code, tax
   regime and CFDI use are checked against the SAT catalogs first, so the
   customer fixes a typo in a form instead of finding out through a rejected
@@ -73,7 +77,7 @@ stamping service, to issue the tax receipts (CFDI 4.0) your customers request.
 An account and an API token are required; the plugin does nothing until you
 enter one in its settings.
 
-Data is sent in three situations, and only then:
+Data is sent in these situations, and only then:
 
 1. When the invoicing form loads the SAT catalogs it needs (tax regimes and
    CFDI uses), the plugin calls `GET /api/public/catalogs`. No customer data is
@@ -87,9 +91,20 @@ Data is sent in three situations, and only then:
      SAT product and unit keys, and the SKU when the product has one;
    * the order identifier, as an external reference, so that two simultaneous
      submissions cannot produce two invoices for the same order.
+   If an email address is provided, FacturaMX uses it to email the invoice
+   (PDF and XML) to the customer.
 3. When somebody downloads an already issued invoice, the plugin calls
    `GET /api/public/invoice/{id}/{format}` to fetch its PDF or XML. Only the
    identifier of that invoice is sent.
+4. When a customer looks up an order on the invoicing page and the order has no
+   invoice in the store yet, the plugin calls
+   `GET /api/public/invoice?external_id={order}` to check whether the store
+   already invoiced it from the FacturaMX panel. Only the order identifier is
+   sent.
+5. When an administrator clicks "Enviar a FacturaMX como cotización" (send to
+   FacturaMX as a quotation) on an order,
+   the plugin calls `POST /api/public/quotation` with the same data as in point 2
+   (as far as it has been filled in). Nothing is stamped.
 
 Nothing is sent when a visitor merely browses your store, and nothing is sent
 about orders that nobody asks to invoice.
@@ -134,7 +149,9 @@ real.
 = Can the same order be invoiced twice? =
 
 No. Once an order has a CFDI, the plugin shows the existing one instead of
-issuing another.
+issuing another. This also covers invoices issued outside the plugin: if the
+order was invoiced from the FacturaMX panel (for example, from a quotation), the
+invoicing page finds that invoice and offers it for download.
 
 = Which orders can be invoiced? =
 
@@ -194,6 +211,11 @@ plugin so it can be translated.
   proxied through the site.
 * Guided setup: no CFDI is issued until the connection is tested with the
   current token and every product has its own SAT key.
+* "Enviar a FacturaMX como cotización" (send as a quotation) button on the order
+  screen.
+* Orders invoiced from the FacturaMX panel are detected and offered for download.
+* Store-domain email addresses (e.g. created by a chat bot) are not suggested as
+  the customer's email.
 
 == Upgrade Notice ==
 

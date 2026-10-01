@@ -183,6 +183,33 @@ class FacturaMX_Invoice {
 	}
 
 	/**
+	 * Si el pedido se facturó por otra vía (panel de FacturaMX, cotización del
+	 * POS), trae esa factura y la guarda en el pedido como si la hubiera emitido
+	 * el plugin. Así el portal ofrece la descarga en vez de un formulario.
+	 *
+	 * @param WC_Order $order Pedido.
+	 * @return bool true si el pedido queda facturado tras la consulta.
+	 */
+	public static function sync_from_api( $order ) {
+		if ( ! is_object( $order ) || self::is_stamped( $order ) ) {
+			return self::is_stamped( $order );
+		}
+		$found = FacturaMX_Client::find_invoice( (string) $order->get_id() );
+		if ( null === $found ) {
+			return false;
+		}
+		$meta = self::persist( $order, $found );
+		if ( is_wp_error( $meta ) ) {
+			return false;
+		}
+		$order->add_order_note(
+			__( 'FacturaMX: este pedido ya se había facturado fuera del portal (en el panel o desde una cotización). Se enlazó la factura existente.', 'facturamx-for-woocommerce' ),
+			false
+		);
+		return true;
+	}
+
+	/**
 	 * Escribe la meta y añade la nota al pedido.
 	 *
 	 * Las tres líneas de escritura que faltaban. No valida nada que no haya

@@ -39,6 +39,11 @@ class FacturaMX_Order_Metabox {
 	/** Acciones y nonces, deliberadamente distintos entre sí. */
 	const ACTION_PREVIEW = 'facturamx_preview_invoice';
 	const ACTION_STAMP   = 'facturamx_stamp_invoice';
+	const ACTION_QUOTE   = 'facturamx_send_quotation';
+
+	/** Metas de la cotización enviada a FacturaMX. */
+	const QUOTE_URL_META    = '_facturamx_quote_url';
+	const QUOTE_NUMBER_META = '_facturamx_quote_number';
 
 	/** Prefijo de las metas del receptor (decisión D9). */
 	const CUSTOMER_PREFIX = '_facturamx_customer_';
@@ -61,6 +66,7 @@ class FacturaMX_Order_Metabox {
 		add_action( 'add_meta_boxes', array( __CLASS__, 'register' ) );
 		add_action( 'wp_ajax_' . self::ACTION_PREVIEW, array( __CLASS__, 'ajax_preview' ) );
 		add_action( 'wp_ajax_' . self::ACTION_STAMP, array( __CLASS__, 'ajax_stamp' ) );
+		add_action( 'wp_ajax_' . self::ACTION_QUOTE, array( __CLASS__, 'ajax_quote' ) );
 	}
 
 	/**
@@ -294,6 +300,20 @@ class FacturaMX_Order_Metabox {
 				<button type="button" class="button" id="facturamx-preview"><?php esc_html_e( 'Previsualizar', 'facturamx-for-woocommerce' ); ?></button>
 				<button type="button" class="button button-primary" id="facturamx-stamp" disabled><?php esc_html_e( 'Timbrar', 'facturamx-for-woocommerce' ); ?></button>
 			</p>
+			<p>
+				<?php $facturamx_quote_url = (string) $order->get_meta( self::QUOTE_URL_META, true ); ?>
+				<?php if ( '' !== $facturamx_quote_url ) : ?>
+					<a href="<?php echo esc_url( $facturamx_quote_url ); ?>" target="_blank" rel="noopener">
+						<?php
+						/* translators: %s: número de cotización en FacturaMX. */
+						echo esc_html( sprintf( __( 'Ver la cotización #%s en FacturaMX', 'facturamx-for-woocommerce' ), (string) $order->get_meta( self::QUOTE_NUMBER_META, true ) ) );
+						?>
+					</a>
+				<?php else : ?>
+					<button type="button" class="button" id="facturamx-quote"><?php esc_html_e( 'Enviar a FacturaMX como cotización', 'facturamx-for-woocommerce' ); ?></button>
+					<br><span class="description"><?php esc_html_e( 'No timbra nada: la cotización se convierte en factura desde el panel de FacturaMX.', 'facturamx-for-woocommerce' ); ?></span>
+				<?php endif; ?>
+			</p>
 			<p class="description">
 				<?php esc_html_e( 'Previsualizar no emite nada ni gasta timbres. Timbrar sí, y no se puede deshacer.', 'facturamx-for-woocommerce' ); ?>
 			</p>
@@ -380,6 +400,28 @@ class FacturaMX_Order_Metabox {
 					show( false, data.message || <?php echo wp_json_encode( __( 'No se pudo completar el timbrado. Recarga la pantalla antes de reintentar.', 'facturamx-for-woocommerce' ) ); ?> );
 				} );
 			} );
+
+			$( '#facturamx-quote' ).on( 'click', function () {
+				var button = $( this );
+				button.prop( 'disabled', true );
+				show( true, <?php echo wp_json_encode( __( 'Enviando a FacturaMX…', 'facturamx-for-woocommerce' ) ); ?> );
+				$.post( ajaxurl, $.extend( fields(), {
+					action: <?php echo wp_json_encode( self::ACTION_QUOTE ); ?>,
+					_ajax_nonce: <?php echo wp_json_encode( wp_create_nonce( self::ACTION_QUOTE ) ); ?>
+				} ) ).done( function ( response ) {
+					var data = response && response.data ? response.data : {};
+					show( !! data.ok, data.message || '' );
+					if ( data.ok ) {
+						window.location.reload();
+					} else {
+						button.prop( 'disabled', false );
+					}
+				} ).fail( function ( xhr ) {
+					var data = xhr.responseJSON && xhr.responseJSON.data ? xhr.responseJSON.data : {};
+					show( false, data.message || <?php echo wp_json_encode( __( 'No se pudo enviar la cotización.', 'facturamx-for-woocommerce' ) ); ?> );
+					button.prop( 'disabled', false );
+				} );
+			} );
 		} );
 		</script>
 		<?php
@@ -452,6 +494,71 @@ class FacturaMX_Order_Metabox {
 		);
 
 		wp_send_json_success( self::preview_result( $payload, (float) $order->get_total() ) );
+	}
+
+	/**
+	 * Handler de «Enviar a FacturaMX como cotización». No timbra: crea una
+	 * cotización en borrador (idempotente por el id del pedido) y guarda su enlace.
+	 * Los datos fiscales pueden ir incompletos: se completan en el panel.
+	 */
+	public static function ajax_quote() {
+		check_ajax_referer( self::ACTION_QUOTE );
+
+		$order = self::authorize();
+		if ( is_wp_error( $order ) ) {
+			self::fail( $order, 403 );
+		}
+		if ( FacturaMX_Invoice::is_stamped( $order ) ) {
+			self::fail(
+				new WP_Error( 'facturamx_already_stamped', __( 'Este pedido ya tiene factura.', 'facturamx-for-woocommerce' ) ),
+				409
+			);
+		}
+
+		$request = self::read_request();
+		self::save_customer( $order, $request );
+
+		$payload = FacturaMX_Order_Mapper::map(
+			$order,
+			$request['customer'],
+			array(
+				'use'          => $request['use'],
+				'payment_form' => $request['payment_form'],
+				'external_id'  => (string) $order->get_id(),
+			)
+		);
+		if ( is_wp_error( $payload ) ) {
+			self::fail( $payload );
+		}
+
+		$quote = FacturaMX_Client::send_quotation( FacturaMX_Order_Mapper::to_quotation( $payload ) );
+		if ( is_wp_error( $quote ) ) {
+			self::fail( $quote, 502 );
+		}
+
+		$order->update_meta_data( self::QUOTE_URL_META, esc_url_raw( (string) $quote['quote_url'] ) );
+		$order->update_meta_data( self::QUOTE_NUMBER_META, (string) $quote['quote_number'] );
+		$order->save();
+		$order->add_order_note(
+			sprintf(
+				/* translators: %s: número de cotización. */
+				__( 'FacturaMX: pedido enviado como cotización #%s (sin timbrar).', 'facturamx-for-woocommerce' ),
+				(string) $quote['quote_number']
+			),
+			false
+		);
+
+		wp_send_json_success(
+			array(
+				'ok'        => true,
+				'message'   => sprintf(
+					/* translators: %s: número de cotización. */
+					__( 'Cotización #%s creada en FacturaMX.', 'facturamx-for-woocommerce' ),
+					(string) $quote['quote_number']
+				),
+				'quote_url' => (string) $quote['quote_url'],
+			)
+		);
 	}
 
 	/**

@@ -216,7 +216,15 @@ class FacturaMX_Portal {
 			self::fail( self::throttle_error(), 429 );
 		}
 
-		$order    = $input['order_id'] ? wc_get_order( $input['order_id'] ) : false;
+		$order = $input['order_id'] ? wc_get_order( $input['order_id'] ) : false;
+
+		// ¿Se facturó ya por otra vía (panel, cotización del POS)? Va antes de la
+		// elegibilidad: un pedido ya facturado es la rama de descarga, aunque esté
+		// fuera de plazo. Solo escribe la meta; el importe se sigue comprobando abajo.
+		if ( $order ) {
+			FacturaMX_Invoice::sync_from_api( $order );
+		}
+
 		$eligible = FacturaMX_Eligibility::check(
 			self::facts_from_order( $order ),
 			array(
@@ -465,6 +473,32 @@ class FacturaMX_Portal {
 	}
 
 	/**
+	 * Correo que se propone en el formulario a partir del de facturación del pedido.
+	 *
+	 * Si es del dominio de la propia tienda no es del cliente: es una dirección
+	 * interna (p. ej. la que crea un bot de WhatsApp al dar de alta el pedido). Se
+	 * deja vacío para que el cliente escriba el suyo; si no, la factura le llegaría
+	 * a la tienda.
+	 *
+	 * @param string $email     Correo de facturación del pedido.
+	 * @param string $site_host Host de la tienda (home_url).
+	 * @return string
+	 */
+	public static function prefill_email( $email, $site_host ) {
+		$email = trim( (string) $email );
+		$at    = strrpos( $email, '@' );
+		if ( '' === $email || false === $at ) {
+			return $email;
+		}
+		$domain = strtolower( substr( $email, $at + 1 ) );
+		$site   = strtolower( preg_replace( '/^www\./i', '', trim( (string) $site_host ) ) );
+		if ( '' !== $site && ( $domain === $site || substr( $domain, -strlen( '.' . $site ) ) === '.' . $site ) ) {
+			return '';
+		}
+		return $email;
+	}
+
+	/**
 	 * Importe de wc_price() como texto plano para el resumen.
 	 *
 	 * wc_price() devuelve HTML con el símbolo como entidad (`&#36;`). Quitar las
@@ -566,7 +600,10 @@ class FacturaMX_Portal {
 		}
 
 		if ( '' === $saved['email'] ) {
-			$saved['email'] = (string) $order->get_billing_email();
+			$saved['email'] = self::prefill_email(
+				(string) $order->get_billing_email(),
+				(string) wp_parse_url( home_url(), PHP_URL_HOST )
+			);
 		}
 
 		if ( '' === $saved['payment_form'] ) {

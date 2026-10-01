@@ -63,11 +63,14 @@ sistema y este **plugin** para WooCommerce. Pagas solo por los timbres que usas.
 ## Qué hace
 
 - **Página pública de autofacturación** con la etiqueta `[facturamx_portal]`.
-- **Facturar desde el pedido** en el administrador de WooCommerce, con previsualización que no timbra.
+- **Facturar desde el pedido** en el administrador de WooCommerce, con previsualización que no timbra, o
+  **enviarlo a FacturaMX como cotización** para convertirlo en factura desde el panel.
+- **La factura le llega al cliente por correo**, con el PDF y el XML, si deja su email.
 - **IVA incluido, como marca la ley:** si WooCommerce no calculó el impuesto de una línea, el plugin lo
   extrae del precio en vez de sumarlo. Los productos exentos se declaran uno por uno.
 - **Cuadra el CFDI contra lo pagado**; si no cuadra, no lo emite.
-- **Un pedido no se factura dos veces**, aunque el cliente pulse el botón de nuevo.
+- **Un pedido no se factura dos veces**, aunque el cliente pulse el botón de nuevo o el comercio ya lo
+  haya facturado desde el panel de FacturaMX: el portal lo detecta y ofrece la descarga.
 - **Configuración guiada:** no timbra con la conexión sin probar ni con productos sin clave del SAT.
 - El PDF y el XML se descargan desde tu propio sitio: **tu token nunca llega al navegador**.
 - Compatible con **HPOS** (almacenamiento de pedidos de alto rendimiento).

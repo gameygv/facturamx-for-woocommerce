@@ -398,6 +398,63 @@ class FacturaMX_Order_Mapper {
 	}
 
 	/**
+	 * Convierte el payload de factura (salida de map()/build()) en el cuerpo de
+	 * POST /api/public/quotation: el pedido llega a FacturaMX como cotización en
+	 * borrador y el comercio la convierte en factura desde el panel. Pura.
+	 *
+	 * Precios SIN IVA, como en la factura. external_id = id del pedido: la factura
+	 * que salga de la cotización lo hereda y el portal ya no ofrece timbrarlo.
+	 *
+	 * @param array $payload Payload de factura.
+	 * @return array
+	 */
+	public static function to_quotation( array $payload ) {
+		$items = array();
+		foreach ( isset( $payload['items'] ) ? (array) $payload['items'] : array() as $it ) {
+			$item = array(
+				'description' => (string) $it['description'],
+				'quantity'    => $it['quantity'],
+				'price'       => $it['price'],
+				'iva_rate'    => $it['iva_rate'],
+			);
+			foreach ( array( 'product_key', 'unit_key', 'unit_name' ) as $k ) {
+				if ( ! empty( $it[ $k ] ) ) {
+					$item[ $k ] = (string) $it[ $k ];
+				}
+			}
+			if ( ! empty( $it['no_identificacion'] ) ) {
+				$item['sku'] = (string) $it['no_identificacion'];
+			}
+			$items[] = $item;
+		}
+
+		$body = array(
+			'external_id'    => isset( $payload['external_id'] ) ? (string) $payload['external_id'] : '',
+			'items'          => $items,
+			'payment_form'   => isset( $payload['payment_form'] ) ? (string) $payload['payment_form'] : '',
+			'payment_method' => isset( $payload['payment_method'] ) ? (string) $payload['payment_method'] : 'PUE',
+		);
+
+		$c        = isset( $payload['customer'] ) && is_array( $payload['customer'] ) ? $payload['customer'] : array();
+		$customer = array_filter(
+			array(
+				'rfc'        => isset( $c['tax_id'] ) ? (string) $c['tax_id'] : '',
+				'name'       => isset( $c['legal_name'] ) ? (string) $c['legal_name'] : '',
+				'zip'        => isset( $c['zip'] ) ? (string) $c['zip'] : '',
+				'email'      => isset( $c['email'] ) ? (string) $c['email'] : '',
+				'tax_regime' => isset( $c['tax_system'] ) ? (string) $c['tax_system'] : '',
+				'cfdi_use'   => isset( $payload['use'] ) ? (string) $payload['use'] : '',
+			),
+			'strlen'
+		);
+		if ( ! empty( $customer['rfc'] ) || ! empty( $customer['name'] ) ) {
+			$body['customer'] = $customer;
+		}
+
+		return $body;
+	}
+
+	/**
 	 * Total que tendrá el CFDI, con el mismo redondeo que aplica el documento
 	 * fiscal: importe por línea a 2 decimales, IVA por línea a 2 decimales.
 	 *

@@ -54,6 +54,7 @@ class FacturaMX_Client {
 	const CATALOGS_TTL       = DAY_IN_SECONDS;
 
 	const PATH_INVOICE  = '/api/public/invoice';
+	const PATH_QUOTATION = '/api/public/quotation';
 	const PATH_CATALOGS = '/api/public/catalogs';
 
 	/**
@@ -188,6 +189,88 @@ class FacturaMX_Client {
 
 			return new WP_Error( $verdict['code'], $verdict['message'] );
 		}
+	}
+
+	/**
+	 * Manda el pedido a FacturaMX como cotización en borrador. No timbra nada.
+	 * Idempotente en el servidor por external_id: repetirlo devuelve la misma.
+	 *
+	 * @param array $body Salida de FacturaMX_Order_Mapper::to_quotation().
+	 * @return array|WP_Error quotation_id, quote_number, quote_url…
+	 */
+	public static function send_quotation( array $body ) {
+		$response = self::post(
+			self::PATH_QUOTATION,
+			array(
+				'timeout' => 20,
+				'headers' => array(
+					'Authorization' => 'Bearer ' . (string) FacturaMX_Settings::get( 'api_token' ),
+					'Content-Type'  => 'application/json',
+				),
+				'body'    => wp_json_encode( $body ),
+			)
+		);
+		if ( is_wp_error( $response ) ) {
+			return new WP_Error( 'facturamx_transport_error', $response->get_error_message() );
+		}
+		$status = (int) wp_remote_retrieve_response_code( $response );
+		$data   = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( ( 200 === $status || 201 === $status ) && is_array( $data ) && ! empty( $data['quotation_id'] ) ) {
+			return $data;
+		}
+		$message = is_array( $data ) && ! empty( $data['error'] ) ? (string) $data['error'] : sprintf( 'HTTP %d', $status );
+		return new WP_Error( 'facturamx_quote_failed', $message );
+	}
+
+	/**
+	 * ¿Este pedido ya tiene factura en FacturaMX, hecha por otra vía?
+	 *
+	 * El comercio pudo facturarlo en el panel o convirtiendo la cotización que
+	 * mandó su POS. Se consulta por external_id (el id del pedido) antes de
+	 * ofrecer el formulario. Cualquier fallo devuelve null y el flujo sigue
+	 * como siempre: el POST de timbrado deduplica por external_id igualmente.
+	 *
+	 * @param string $external_id Id del pedido.
+	 * @return array|null Respuesta con uuid, invoice_id, serie, folio y URLs; null si no hay.
+	 */
+	public static function find_invoice( $external_id ) {
+		$url = self::endpoint( FacturaMX_Settings::get( 'api_url' ), self::PATH_INVOICE );
+		if ( '' === $url || '' === (string) $external_id ) {
+			return null;
+		}
+
+		$response = wp_remote_get(
+			add_query_arg( 'external_id', rawurlencode( (string) $external_id ), $url ),
+			array(
+				'timeout' => 10,
+				'headers' => array( 'Authorization' => 'Bearer ' . (string) FacturaMX_Settings::get( 'api_token' ) ),
+			)
+		);
+
+		return self::interpret_lookup(
+			self::status_of( $response ),
+			is_wp_error( $response ) ? null : json_decode( wp_remote_retrieve_body( $response ), true )
+		);
+	}
+
+	/**
+	 * Parte pura de find_invoice(): solo una factura vigente y con UUID cuenta.
+	 *
+	 * @param int|string $status Código HTTP, o mensaje si no hubo respuesta.
+	 * @param mixed      $body   Cuerpo decodificado.
+	 * @return array|null
+	 */
+	public static function interpret_lookup( $status, $body ) {
+		if ( 200 !== $status || ! is_array( $body ) ) {
+			return null;
+		}
+		if ( '' === trim( (string) ( isset( $body['uuid'] ) ? $body['uuid'] : '' ) ) ) {
+			return null;
+		}
+		if ( isset( $body['invoice_status'] ) && 'cancelled' === $body['invoice_status'] ) {
+			return null;
+		}
+		return $body;
 	}
 
 	/**

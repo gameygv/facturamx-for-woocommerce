@@ -1394,6 +1394,57 @@ facturamx_is( FacturaMX_Portal::plain_price( '<bdi>1,234.50&nbsp;MXN</bdi>' ), "
 facturamx_is( FacturaMX_Portal::plain_price( ' <b>$5</b> ' ), '$5', 'recorta espacios' );
 
 // ---------------------------------------------------------------------------
+// FacturaMX_Portal::prefill_email — no se propone un correo interno de la tienda
+// ---------------------------------------------------------------------------
+facturamx_group( 'portal · prefill_email' );
+
+facturamx_is( FacturaMX_Portal::prefill_email( 'pedidos+wa2225636150@raizselvas.com', 'raizselvas.com' ), '', 'correo del dominio de la tienda (alta del bot): vacío' );
+facturamx_is( FacturaMX_Portal::prefill_email( 'Pedidos@RaizSelvas.com', 'www.raizselvas.com' ), '', 'sin distinguir mayúsculas ni el www.' );
+facturamx_is( FacturaMX_Portal::prefill_email( 'a@tienda.raizselvas.com', 'raizselvas.com' ), '', 'subdominio de la tienda: vacío' );
+facturamx_is( FacturaMX_Portal::prefill_email( 'karina@gmail.com', 'raizselvas.com' ), 'karina@gmail.com', 'correo del cliente: se propone' );
+facturamx_is( FacturaMX_Portal::prefill_email( 'yo@noraizselvas.com', 'raizselvas.com' ), 'yo@noraizselvas.com', 'un dominio que solo termina igual no es la tienda' );
+facturamx_is( FacturaMX_Portal::prefill_email( '', 'raizselvas.com' ), '', 'vacío sigue vacío' );
+
+// ---------------------------------------------------------------------------
+// FacturaMX_Client::interpret_lookup — ¿el pedido ya se facturó por otra vía?
+// ---------------------------------------------------------------------------
+facturamx_group( 'client · interpret_lookup' );
+
+$found = array( 'uuid' => 'U1', 'invoice_id' => 'i1', 'series' => 'WEB', 'folio' => 1, 'invoice_status' => 'stamped', 'pdf_url' => 'p', 'xml_url' => 'x' );
+facturamx_is( FacturaMX_Client::interpret_lookup( 200, $found ), $found, '200 vigente: se devuelve para guardarlo en el pedido' );
+facturamx_is( FacturaMX_Client::interpret_lookup( 200, array_merge( $found, array( 'invoice_status' => 'cancelled' ) ) ), null, 'cancelada: no cuenta como facturado' );
+facturamx_is( FacturaMX_Client::interpret_lookup( 200, array_merge( $found, array( 'uuid' => '' ) ) ), null, 'sin UUID: no se fía' );
+facturamx_is( FacturaMX_Client::interpret_lookup( 404, array( 'error' => 'x' ) ), null, '404: no hay factura' );
+facturamx_is( FacturaMX_Client::interpret_lookup( 409, array( 'error' => 'x' ) ), null, '409 (timbrándose): sigue el flujo; el POST deduplica' );
+facturamx_is( FacturaMX_Client::interpret_lookup( 'cURL error 28', null ), null, 'fallo de red: sigue el flujo normal' );
+facturamx_is( FacturaMX_Client::interpret_lookup( 200, 'no soy json' ), null, 'cuerpo raro: null' );
+
+// ---------------------------------------------------------------------------
+// FacturaMX_Order_Mapper::to_quotation — pedido como cotización en FacturaMX
+// ---------------------------------------------------------------------------
+facturamx_group( 'mapper · to_quotation' );
+
+$payload = array(
+	'payment_method' => 'PUE',
+	'payment_form'   => '04',
+	'customer'       => array( 'legal_name' => 'ALMA ROSA', 'tax_id' => 'FASA800101AB1', 'tax_system' => '612', 'zip' => '29200', 'email' => 'a@x.mx' ),
+	'use'            => 'G03',
+	'external_id'    => '3637',
+	'items'          => array(
+		array( 'description' => 'Extracto 65 ml', 'product_key' => '50171550', 'unit_key' => 'H87', 'unit_name' => 'Pieza', 'quantity' => 12, 'price' => 162.164167, 'iva_rate' => 0.16, 'no_identificacion' => 'N65' ),
+		array( 'description' => 'Raíz', 'product_key' => '', 'unit_key' => '', 'unit_name' => '', 'quantity' => 1, 'price' => 100, 'iva_rate' => 0 ),
+	),
+);
+$q = FacturaMX_Order_Mapper::to_quotation( $payload );
+facturamx_is( $q['external_id'], '3637', 'external_id = id del pedido (lo que luego hereda la factura)' );
+facturamx_is( $q['payment_form'], '04', 'forma de pago' );
+facturamx_is( $q['items'][0], array( 'description' => 'Extracto 65 ml', 'quantity' => 12, 'price' => 162.164167, 'iva_rate' => 0.16, 'product_key' => '50171550', 'unit_key' => 'H87', 'unit_name' => 'Pieza', 'sku' => 'N65' ), 'partida con precio SIN IVA y sku' );
+facturamx_is( $q['items'][1], array( 'description' => 'Raíz', 'quantity' => 1, 'price' => 100, 'iva_rate' => 0 ), 'campos vacíos no se mandan' );
+facturamx_is( $q['customer'], array( 'rfc' => 'FASA800101AB1', 'name' => 'ALMA ROSA', 'zip' => '29200', 'email' => 'a@x.mx', 'tax_regime' => '612', 'cfdi_use' => 'G03' ), 'cliente con régimen y uso: FacturaMX lo da de alta' );
+$sin = FacturaMX_Order_Mapper::to_quotation( array_merge( $payload, array( 'customer' => array( 'tax_id' => '', 'legal_name' => '' ), 'use' => '' ) ) );
+facturamx_is( isset( $sin['customer'] ), false, 'sin datos del cliente no se manda customer' );
+
+// ---------------------------------------------------------------------------
 // FacturaMX_Readiness — S2.4: no se llega al primer timbre a medio configurar
 // ---------------------------------------------------------------------------
 facturamx_group( 'readiness' );
