@@ -65,10 +65,33 @@ store owner does nothing.
 = Pricing =
 
 The plugin is free. Issuing a CFDI is done by FacturaMX and consumes one
-"stamp" (timbre) from your FacturaMX account: new accounts get 3 free stamps, and
-further stamps are sold in packages at https://facturamx.top. The plugin never
+"stamp" (timbre) from your FacturaMX account: new accounts get 3 free stamps,
+valid for 30 days, and further stamps are sold in packages at
+https://facturamx.top. The plugin never
 issues anything on its own: only when a customer or an administrator submits the
 invoicing form.
+
+= En español =
+
+**FacturaMX for WooCommerce** permite que tus clientes generen su propia factura
+electrónica (CFDI 4.0) desde tu tienda, sin escribirte y sin que tú entres al
+portal del SAT.
+
+* **Página de facturación** con la etiqueta `[facturamx_portal]`: el cliente
+  escribe su número de pedido y el monto que pagó, llena sus datos fiscales y
+  descarga su factura en PDF y XML. También le llega por correo.
+* **Facturar desde el pedido** en el administrador de WooCommerce, o mandarlo a
+  FacturaMX como cotización para convertirlo en factura desde el panel.
+* **Valida RFC, código postal, régimen y uso del CFDI** contra los catálogos del
+  SAT antes de timbrar.
+* **Un pedido no se factura dos veces**, aunque ya se haya facturado desde el
+  panel de FacturaMX.
+* **El CFDI cuadra con lo que pagó el cliente**; si no cuadra, no se emite.
+
+El plugin es gratuito. Para timbrar necesitas una cuenta en
+[FacturaMX](https://facturamx.top), con tu CSD cargado: al registrarte recibes
+3 timbres gratis, válidos por 30 días. Guía de instalación en español:
+https://facturamx.top/plugin-woocommerce
 
 == External services ==
 
