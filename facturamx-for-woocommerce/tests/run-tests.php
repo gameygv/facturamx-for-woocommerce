@@ -1445,6 +1445,16 @@ $sin = FacturaMX_Order_Mapper::to_quotation( array_merge( $payload, array( 'cust
 facturamx_is( isset( $sin['customer'] ), false, 'sin datos del cliente no se manda customer' );
 
 // ---------------------------------------------------------------------------
+// FacturaMX_Portal — nonce de las peticiones del portal
+// ---------------------------------------------------------------------------
+facturamx_group( 'portal · nonce' );
+
+facturamx_is( FacturaMX_Portal::NONCE_ACTION, 'facturamx_portal', 'acción del nonce propia del portal' );
+$expired = FacturaMX_Portal::expired_nonce_error();
+facturamx_is( $expired->get_error_code(), 'facturamx_expired_page', 'nonce caducado: código propio' );
+facturamx_is( false !== strpos( $expired->get_error_message(), 'Recarga' ), true, 'y le dice al cliente que recargue la página' );
+
+// ---------------------------------------------------------------------------
 // FacturaMX_Readiness — S2.4: no se llega al primer timbre a medio configurar
 // ---------------------------------------------------------------------------
 facturamx_group( 'readiness' );

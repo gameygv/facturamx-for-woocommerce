@@ -49,6 +49,9 @@ class FacturaMX_Portal {
 	/** Acción AJAX del paso 2. El único camino que gasta un timbre. */
 	const ACTION_STAMP = 'facturamx_portal_stamp';
 
+	/** Acción del nonce que firma las dos peticiones del portal. */
+	const NONCE_ACTION = 'facturamx_portal';
+
 	/** Fallos consecutivos antes de frenar. */
 	const THROTTLE_MAX = 5;
 
@@ -194,6 +197,14 @@ class FacturaMX_Portal {
 
 		wp_enqueue_script( 'jquery' );
 
+		// La página lleva un nonce: no puede servirse desde una caché de página,
+		// o los clientes recibirían uno caducado. DONOTCACHEPAGE lo respetan WP
+		// Super Cache, W3TC y LiteSpeed; LiteSpeed además por su propia acción.
+		if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+			define( 'DONOTCACHEPAGE', true ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound -- constante estándar que leen los plugins de caché.
+		}
+		do_action( 'litespeed_control_set_nocache', 'facturamx portal' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- acción propia de LiteSpeed Cache.
+
 		ob_start();
 		self::render_markup();
 
@@ -210,6 +221,10 @@ class FacturaMX_Portal {
 	 * @return void
 	 */
 	public static function ajax_search() {
+		if ( ! check_ajax_referer( self::NONCE_ACTION, '_ajax_nonce', false ) ) {
+			self::fail( self::expired_nonce_error(), 403 );
+		}
+
 		$input = self::read_lookup();
 
 		if ( self::throttled( $input['order_id'] ) ) {
@@ -281,6 +296,10 @@ class FacturaMX_Portal {
 	 * @return void
 	 */
 	public static function ajax_stamp() {
+		if ( ! check_ajax_referer( self::NONCE_ACTION, '_ajax_nonce', false ) ) {
+			self::fail( self::expired_nonce_error(), 403 );
+		}
+
 		$input = self::read_lookup();
 
 		if ( self::throttled( $input['order_id'] ) ) {
@@ -408,12 +427,9 @@ class FacturaMX_Portal {
 	 * @return array{order_id:int, amount:float|null}
 	 */
 	private static function read_lookup() {
-		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Sin nonce
-		// a propósito (decisión D9). El endpoint es público por diseño: cualquiera
-		// puede llamarlo con curl, así que un nonce no defiende de nada que no
-		// defienda ya el importe. Lo que sí haría es romper el portal cuando una
-		// caché de página sirva un nonce caducado, dejando sin facturar a clientes
-		// legítimos por una protección que aquí no protege.
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- el nonce
+		// lo comprueba check_ajax_referer() al entrar en cada handler. La página
+		// del portal se marca como no cacheable para que nunca esté caducado.
 		$number = isset( $_POST['order_number'] ) ? sanitize_text_field( wp_unslash( $_POST['order_number'] ) ) : '';
 		$amount = isset( $_POST['amount'] ) ? sanitize_text_field( wp_unslash( $_POST['amount'] ) ) : '';
 		// phpcs:enable WordPress.Security.NonceVerification.Missing
@@ -747,6 +763,19 @@ class FacturaMX_Portal {
 	}
 
 	/**
+	 * Error cuando el nonce no es válido: casi siempre, una página abierta desde
+	 * hace muchas horas. Al cliente se le pide recargar, sin más detalle.
+	 *
+	 * @return WP_Error
+	 */
+	public static function expired_nonce_error() {
+		return new WP_Error(
+			'facturamx_expired_page',
+			__( 'Esta página lleva mucho tiempo abierta. Recarga la página y vuelve a intentarlo.', 'facturamx-for-woocommerce' )
+		);
+	}
+
+	/**
 	 * Responde un error y termina. Un solo sitio, un solo formato.
 	 *
 	 * @param WP_Error $error  Error.
@@ -776,6 +805,7 @@ class FacturaMX_Portal {
 	 */
 	private static function render_markup() {
 		$ajax_url = admin_url( 'admin-ajax.php' );
+		$nonce    = wp_create_nonce( self::NONCE_ACTION );
 
 		wp_register_style( 'facturamx-portal', false, array(), FACTURAMX_VERSION );
 		wp_enqueue_style( 'facturamx-portal' );
@@ -846,7 +876,7 @@ class FacturaMX_Portal {
 			<p class="facturamx-message" role="status" aria-live="polite"></p>
 		</div>
 
-		<script>
+		<?php ob_start(); ?>
 		jQuery( function ( $ ) {
 			var root    = $( '.facturamx-portal' );
 			var message = root.find( '.facturamx-message' );
@@ -906,7 +936,7 @@ class FacturaMX_Portal {
 				var button = $( this ).prop( 'disabled', true );
 				say( <?php echo wp_json_encode( __( 'Buscando…', 'facturamx-for-woocommerce' ) ); ?> );
 
-				$.post( ajaxUrl, $.extend( lookup(), { action: <?php echo wp_json_encode( self::ACTION_SEARCH ); ?> } ) )
+				$.post( ajaxUrl, $.extend( lookup(), { action: <?php echo wp_json_encode( self::ACTION_SEARCH ); ?>, _ajax_nonce: <?php echo wp_json_encode( $nonce ); ?> } ) )
 					.done( function ( response ) {
 						var data = response && response.data ? response.data : {};
 
@@ -951,6 +981,7 @@ class FacturaMX_Portal {
 
 				$.post( ajaxUrl, $.extend( lookup(), {
 					action: <?php echo wp_json_encode( self::ACTION_STAMP ); ?>,
+					_ajax_nonce: <?php echo wp_json_encode( $nonce ); ?>,
 					use: $( '#facturamx-use' ).val(),
 					payment_form: $( '#facturamx-payment-form' ).val(),
 					customer: {
@@ -967,7 +998,7 @@ class FacturaMX_Portal {
 					.fail( failed );
 			} );
 		} );
-		</script>
+		<?php facturamx_inline_script( 'facturamx-portal', (string) ob_get_clean() ); ?>
 		<?php
 	}
 }

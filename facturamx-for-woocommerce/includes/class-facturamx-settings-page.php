@@ -120,7 +120,7 @@ class FacturaMX_Settings_Page {
 				<span id="facturamx-test-result" style="margin-left:10px;"></span>
 			</p>
 
-			<script>
+			<?php ob_start(); ?>
 			jQuery( function ( $ ) {
 				$( '#facturamx-test-connection' ).on( 'click', function () {
 					var button = $( this );
@@ -146,7 +146,7 @@ class FacturaMX_Settings_Page {
 					} );
 				} );
 			} );
-			</script>
+			<?php facturamx_inline_script( 'facturamx-settings', (string) ob_get_clean() ); ?>
 		</div>
 		<?php
 	}

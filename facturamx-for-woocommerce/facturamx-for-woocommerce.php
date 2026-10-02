@@ -38,6 +38,20 @@ define( 'FACTURAMX_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'FACTURAMX_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
 /**
+ * Encola JavaScript en línea con las funciones de WordPress (norma del directorio:
+ * nada de etiquetas de script escritas en el HTML). Se registra un manejador vacío que depende
+ * de jQuery y se le añade el código; WordPress lo imprime en el pie de la página.
+ *
+ * @param string $handle Manejador único.
+ * @param string $js     Código JavaScript, sin etiquetas.
+ */
+function facturamx_inline_script( $handle, $js ) {
+	wp_register_script( $handle, false, array( 'jquery' ), FACTURAMX_VERSION, true );
+	wp_enqueue_script( $handle );
+	wp_add_inline_script( $handle, $js );
+}
+
+/**
  * WooCommerce es un requisito duro: sin él no hay pedidos que facturar.
  *
  * Se comprueba en la activación (para poder abortarla con un mensaje claro) y

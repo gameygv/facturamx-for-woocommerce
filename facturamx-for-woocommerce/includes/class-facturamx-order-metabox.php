@@ -322,7 +322,7 @@ class FacturaMX_Order_Metabox {
 			<pre id="facturamx-payload" style="display:none;max-height:220px;overflow:auto;font-size:11px;background:#f6f7f7;padding:8px;"></pre>
 		</div>
 
-		<script>
+		<?php ob_start(); ?>
 		jQuery( function ( $ ) {
 			var box     = $( '.facturamx-metabox' );
 			var result  = $( '#facturamx-result' );
@@ -423,7 +423,7 @@ class FacturaMX_Order_Metabox {
 				} );
 			} );
 		} );
-		</script>
+		<?php facturamx_inline_script( 'facturamx-metabox', (string) ob_get_clean() ); ?>
 		<?php
 	}
 
